@@ -1,0 +1,31 @@
+#
+# exiftagger-datafile-template.cfg
+# v1.3.0 (c)2015 m.skerwiderski
+#
+# NOTICE: DO NOT EDIT THE COLUMN NAMES BELOW.
+#
+# This template can be used to create a data file by hand.
+#
+# Supported fields:
+#
+# o ImageNumber: Number of image like '1', '01', '003'.
+# o DateTimeOriginal: Date and time image was taken like '2015:01:17 14:30:00'.
+# o ExposureTime: Exposure time like '1/30', '1/125'.
+# o Aperture: Aperture like '2.8', '4', '4.0', '5.6'.
+# o CameraId: CameraId like configured in 'cameras.cfg'.
+# o LensId: LensId like configured in 'lenses.cfg'.
+# o FocalLength: Focal length as 35mm format like '28', '50'.
+#   Note: Should normally only used for zoom lenses, because the fixed focal length is read from 'lenses.cfg'.
+# o Latitude: GPS position latitude like '48.30', '-25.20' (Positive value = North, Negative value = South).
+# o Longitude: GPS position longitude like '11.80', '-15.30' (Positive value = East, Negative value = West).
+# o Comment: Comment for title, subtitle, flash, keyword(s) information:
+#   %<text> = title
+#   +<text> = subtitle (caption abstract)
+#   * = flash used
+#   #<text|shortcut> = keyword or shortcut of keyword (like configured in 'tags.cfg')
+#   Examples:
+#	%View of Mountain,+Shot at night using tripod,#Austria,#At Night,#Tripod
+#   %Empire State Building,"+Shot at night, Exposure +2, Tripod used",#New York,#At Night,#Tripod
+#   %Kids at home,*,#At Home,#Kids
+ImageNumber,DateTimeOriginal,ExposureTime,Aperture,CameraId,LensId,FocalLength,Latitude,Longitude,Comment
+01,2015:01:20 09:34:00,1/125,5.6,0,Minolta CLE,LM MIN 40,,48.30,-15.30,"%Kids at home,*,#At Home,#Kids"
