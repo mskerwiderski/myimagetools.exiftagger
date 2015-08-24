@@ -37,6 +37,7 @@ Datafiles are optional and not required.
 
 o Java Runtime v1.8.0 or above (http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 o ExifTool by Phil Harvey v9.68 or above (http://www.sno.phy.queensu.ca/~phil/exiftool/)
+Maybe ExifTagger will run also with other versions of the Java Runtime or Exiftool. But it is not tested.
 
 2. Installation and Configuration:
 ==================================
