@@ -1,0 +1,14 @@
+[v1.4.0]
+* Changes in PhotoExifParser and GenericParser (Comment Field), see also "exiftagger-datafile-template.txt"
+	o "&" indicates subtitle (instead of "+" in previous versions)
+	o "$" indicates exposure compensation
+* Exif field 'ImageNo' added.
+* Kadlubeks catalog number for camera and lens added (Exif --> "CameraKadlubeksCatalogNo" and "LensKadlubeksCatalogNo").	
+* Added new hybrid process "InstantFilmBleachedNegative".
+* Added new option 'autoFile' for automatic exif tagging (old option 'auto' has been skipped).
+* Bugfixes:
+	o Datafiles could not be identified if they were empty or comment lines at the beginning.	
+	o Coded characterset is set to UTF8 explicitly to manage different target charsets in exif, itpc and so on.
+	o Keywords are also written to 'subject'.
+	
+	 

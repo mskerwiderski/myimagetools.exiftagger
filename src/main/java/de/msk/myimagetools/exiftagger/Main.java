@@ -14,11 +14,11 @@ public class Main {
 	public static void main(String[] args) {
 		Utils.logcSep();
 		Utils.logcLn(Utils.EXIFTAGGER + " " + Utils.EXIFTAGGER_VERSION);
-		Utils.logcSep("(c)2015 Michael Skerwiderski");
-		if (JavaUtils.javaRuntimeFound() && ExiftoolUtils.exiftoolFound()) {
+		Utils.logcSep(Utils.EXIFTAGGER_COPYRIGHT);
+		if (JavaUtils.javaRuntimeFound()) {
 			try {
-				CmdLineParams cmdLineParams = CmdLineParams.parseCmdLineParams(args);
-				if (cmdLineParams != null) {
+				CmdLineParams cmdLineParams = CmdLineParams.parseCmdLineParams(args, "./params.cfg");
+				if ((cmdLineParams != null) && ExiftoolUtils.exiftoolFound(cmdLineParams.exiftool)) {
 					ExifTaggerProps props = ExifTaggerProps.load(cmdLineParams.configDir);
 					GearInfos gearInfos = new GearInfos(cmdLineParams.configDir);
 					CameraAndFilmDataRecord cameraAndFilmDataRecord = 

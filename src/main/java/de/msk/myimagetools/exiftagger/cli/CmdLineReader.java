@@ -32,7 +32,7 @@ public class CmdLineReader {
 		boolean mustNotBeEmpty) 
 		throws ExifTaggerException {
 		String value = ExifSpecUtils.EXIF_NO_VALUE;
-		if (cmdLineParams.auto && cmdLineParams.autoMap.containsKey(description)) {
+		if (cmdLineParams.hasAutoMap() && cmdLineParams.autoMap.containsKey(description)) {
 			value = cmdLineParams.autoMap.get(description);
 		} else {
 			boolean done = false;
@@ -78,7 +78,7 @@ public class CmdLineReader {
 		String nameSingle, String namePlural, boolean unknownPossible) 
 		throws ExifTaggerException {
 		T record = null;
-		if (cmdLineParams.auto && cmdLineParams.autoMap.containsKey(nameSingle)) {
+		if (cmdLineParams.hasAutoMap() && cmdLineParams.autoMap.containsKey(nameSingle)) {
 			int id = Integer.valueOf(cmdLineParams.autoMap.get(nameSingle));
 			record = gearInfoList.get(id);
 		} else {

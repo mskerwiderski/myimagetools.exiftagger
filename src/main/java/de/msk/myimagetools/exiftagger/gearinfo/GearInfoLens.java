@@ -16,6 +16,7 @@ public class GearInfoLens extends AbstractGearInfo {
 	private String lensSerialNumber;
 	private String lensReleaseDate;
 	private String lensManufacturingDate;
+	private String lensKadlubeksCatalogNo;
 	private String lensAdditionalInfo;
 	
 	public GearInfoLens() {
@@ -23,7 +24,7 @@ public class GearInfoLens extends AbstractGearInfo {
 
 	@Override
 	public int getColCnt() {
-		return 11;
+		return 12;
 	}
 
 	public String getMakeAndModel() {
@@ -68,6 +69,7 @@ public class GearInfoLens extends AbstractGearInfo {
 		this.lensSerialNumber = record.get(startIdx++);
 		this.lensReleaseDate = record.get(startIdx++);
 		this.lensManufacturingDate = record.get(startIdx++);
+		this.lensKadlubeksCatalogNo = record.get(startIdx++);
 		this.lensAdditionalInfo = record.get(startIdx++);
 	}
 
@@ -111,6 +113,10 @@ public class GearInfoLens extends AbstractGearInfo {
 		return lensManufacturingDate;
 	}
 
+	public String getLensKadlubeksCatalogNo() {
+		return lensKadlubeksCatalogNo;
+	}
+
 	public String getLensAdditionalInfo() {
 		return lensAdditionalInfo;
 	}
@@ -120,10 +126,12 @@ public class GearInfoLens extends AbstractGearInfo {
 		return "GearInfoLens [lensId=" + lensId + ", lensMake=" + lensMake
 			+ ", lensModel=" + lensModel + ", lensFocalLengthMin="
 			+ lensFocalLengthMin + ", lensFocalLengthMax="
-			+ lensFocalLengthMax + ", lensMaxAperture=" + lensMaxAperture
-			+ ", lensSerialNumber=" + lensSerialNumber
+			+ lensFocalLengthMax + ", lensFocalLengthCorrFactor="
+			+ lensFocalLengthCorrFactor + ", lensMaxAperture="
+			+ lensMaxAperture + ", lensSerialNumber=" + lensSerialNumber
 			+ ", lensReleaseDate=" + lensReleaseDate
 			+ ", lensManufacturingDate=" + lensManufacturingDate
+			+ ", lensKadlubeksCatalogNo=" + lensKadlubeksCatalogNo
 			+ ", lensAdditionalInfo=" + lensAdditionalInfo + "]";
 	}
 }

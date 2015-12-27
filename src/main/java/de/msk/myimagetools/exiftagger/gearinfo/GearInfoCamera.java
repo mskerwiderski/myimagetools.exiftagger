@@ -12,6 +12,7 @@ public class GearInfoCamera extends AbstractGearInfo {
 	private String cameraSerialNumber;
 	private String cameraReleaseDate;
 	private String cameraManufacturingDate;
+	private String cameraKadlubeksCatalogNo;
 	private String cameraAdditionalInfo;
 	private String cameraFormatFactor;
 	private String cameraLensId;
@@ -21,7 +22,7 @@ public class GearInfoCamera extends AbstractGearInfo {
 
 	@Override
 	public int getColCnt() {
-		return 9;
+		return 10;
 	}
 	
 	public String getMakeAndModel() {
@@ -50,6 +51,7 @@ public class GearInfoCamera extends AbstractGearInfo {
 		this.cameraSerialNumber = record.get(startIdx++);
 		this.cameraReleaseDate = record.get(startIdx++);
 		this.cameraManufacturingDate = record.get(startIdx++);
+		this.cameraKadlubeksCatalogNo = record.get(startIdx++);
 		this.cameraAdditionalInfo = record.get(startIdx++);
 		this.cameraFormatFactor = record.get(startIdx++);
 		this.cameraLensId = record.get(startIdx++);
@@ -84,6 +86,10 @@ public class GearInfoCamera extends AbstractGearInfo {
 		return cameraManufacturingDate;
 	}
 
+	public String getCameraKadlubeksCatalogNo() {
+		return cameraKadlubeksCatalogNo;
+	}
+
 	public String getCameraAdditionalInfo() {
 		return cameraAdditionalInfo;
 	}
@@ -103,6 +109,7 @@ public class GearInfoCamera extends AbstractGearInfo {
 			+ ", cameraSerialNumber=" + cameraSerialNumber
 			+ ", cameraReleaseDate=" + cameraReleaseDate
 			+ ", cameraManufacturingDate=" + cameraManufacturingDate
+			+ ", cameraKadlubeksCatalogNo=" + cameraKadlubeksCatalogNo
 			+ ", cameraAdditionalInfo=" + cameraAdditionalInfo
 			+ ", cameraFormatFactor=" + cameraFormatFactor
 			+ ", cameraLensId=" + cameraLensId + "]";

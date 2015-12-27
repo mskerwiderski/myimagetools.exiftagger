@@ -24,17 +24,19 @@ import de.msk.myimagetools.exiftagger.util.csv.CsvUtils;
 public class CmdLineParams {
 	/*
 	 * exiftagger
+	 * [-exiftool <fileName>]
 	 * [-configDir <directory>]
-	 * [-importfile <fileName>] 
+	 * [-datafile <fileName>] 
 	 * -imageDir <directory>
-	 * -fileNameFormat <fileNameExpression>
+	 * -imageFileFormat <fileNameExpression>
 	 * [-writeKeywords]
 	 * [-writeHybridInfoXmp]
 	 * [-writeHybridInfoUserComment]
 	 * [-writeGearInfo]
 	 * [-deleteBackupFiles | -overwriteOriginalFiles | -overwriteOriginalFilesInPlace]
-	 * [-auto]
+	 * [-autoFile <fileName>]
 	 */
+	private static final String OPT_EXIFTOOL = "exiftool";
 	private static final String OPT_CONFIGDIR = "configDir";
 	private static final String OPT_DATA_FILE = "dataFile";
 	private static final String OPT_IMAGE_DIR = "imageDir";
@@ -45,9 +47,10 @@ public class CmdLineParams {
 	private static final String OPT_WRITE_GEAR_INFO = "writeGearInfo";
 	private static final String OPT_OVERWRITE_ORIGINAL_FILES = "overwriteOriginalFiles";
 	private static final String OPT_OVERWRITE_ORIGINAL_FILES_IN_PLACE = "overwriteOriginalFilesInPlace";
-	private static final String OPT_AUTO = "auto";
+	private static final String OPT_AUTO_FILE = "autoFile";
 	
-	private static final String USAGE = Utils.EXIFTAGGER 
+	private static final String USAGE = Utils.EXIFTAGGER
+		+ " [-" + OPT_EXIFTOOL + " <fileName>] "	
 		+ " [-" + OPT_CONFIGDIR + " <fileName>] "
 		+ "-" + OPT_DATA_FILE + " <fileName> "
 		+ "-" + OPT_IMAGE_DIR + " <directory> "
@@ -58,9 +61,12 @@ public class CmdLineParams {
 		+ " [-" + OPT_WRITE_GEAR_INFO + "]"
 		+ " [-" + OPT_OVERWRITE_ORIGINAL_FILES 
 		+ " | -" + OPT_OVERWRITE_ORIGINAL_FILES_IN_PLACE + "]"
-		+ " [-" + OPT_AUTO + "]";
+		+ " [-" + OPT_AUTO_FILE + "]";
 	
-	public String configDir = "./cfg";
+	public String exiftool;
+	private static final String DEF_EXIFTOOL = "exiftool";
+	public String configDir;
+	private static final String DEF_CONFIG_DIR = "./cfg";
 	public String dataFile;
 	public String imageDir;
 	public String imageFileFormat;
@@ -74,26 +80,33 @@ public class CmdLineParams {
 		OverwriteOriginalFilesInPlace
 	}
 	public WriteMode writeMode;
-	public boolean auto;
+	public String autoFile;
+	
 	public Map<String, String> autoMap;
+	public boolean hasAutoMap() {
+		return (autoMap != null);
+	}
 	
 	@Override
 	public String toString() {
-		return "CmdLineParams [configDir=" + configDir + ", dataFile="
-			+ dataFile + ", imageDir=" + imageDir + ", imageFileFormat="
-			+ imageFileFormat + ", writeKeywords=" + writeKeywords
-			+ ", writeHybridInfoXmp=" + writeHybridInfoXmp
-			+ ", writeHybridInfoUserComment=" + writeHybridInfoUserComment
-			+ ", writeGearInfo=" + writeGearInfo + ", writeMode="
-			+ writeMode + ", auto=" + auto + ", autoMap=" + autoMap + "]";
+		return "CmdLineParams [exiftool=" + exiftool + ", configDir="
+			+ configDir + ", dataFile=" + dataFile + ", imageDir="
+			+ imageDir + ", imageFileFormat=" + imageFileFormat
+			+ ", writeKeywords=" + writeKeywords + ", writeHybridInfoXmp="
+			+ writeHybridInfoXmp + ", writeHybridInfoUserComment="
+			+ writeHybridInfoUserComment + ", writeGearInfo="
+			+ writeGearInfo + ", writeMode=" + writeMode + ", autoFile="
+			+ autoFile + ", autoMap=" + autoMap + "]";
 	}
 
-	private static final String PARAMS_CFG_FILE_NAME = "./params.cfg";
-	private static String[] addParamsFromFile(String[] args) 
+	private static String[] addParamsFromFile(String[] args, String additionalParamsCfgFile) 
 		throws ExifTaggerException {
+		if (StringUtils.isEmpty(additionalParamsCfgFile)) {
+			throw new IllegalArgumentException("additionalParamsCfgFile must not be empty.");
+		}
 		List<String> argList = new ArrayList<String>(Arrays.asList(args));
-		if (new File(PARAMS_CFG_FILE_NAME).isFile()) {
-			List<CSVRecord> records = CsvUtils.readCsvComplete(PARAMS_CFG_FILE_NAME);
+		if (new File(additionalParamsCfgFile).isFile()) {
+			List<CSVRecord> records = CsvUtils.readCsvComplete(additionalParamsCfgFile);
 			for (CSVRecord record : records) {
 				for (int idx=0; idx < record.size(); idx++) {
 					String arg = record.get(idx);
@@ -103,52 +116,60 @@ public class CmdLineParams {
 					}
 				}
 			}
-			Utils.logcSep("Found '" + PARAMS_CFG_FILE_NAME + "'.");
+			Utils.logcSep("Found '" + additionalParamsCfgFile + "'.");
 			args = argList.toArray(new String[0]);
 		}
 		return args;
 	}
 	
-	private static final String AUTO_FILE_NAME = "./auto.cfg";
-	private static Map<String, String> getAutoMap() throws ExifTaggerException {
+	private static Map<String, String> getAutoMap(String autoFile) throws ExifTaggerException {
 		Map<String, String> autoMap = new HashMap<String, String>();
-		if (new File(AUTO_FILE_NAME).isFile()) {
-			List<CSVRecord> records = CsvUtils.readCsvComplete(AUTO_FILE_NAME);
+		if (new File(autoFile).isFile()) {
+			List<CSVRecord> records = CsvUtils.readCsvComplete(autoFile);
 			for (CSVRecord record : records) {
 				if (record.size() == 2) {
 					autoMap.put(record.get(0), record.get(1));
 				} 
 			}
-			Utils.logcSep("Found '" + AUTO_FILE_NAME + "'.");
+			Utils.logcSep("Found '" + autoFile + "'.");
 		} else {
-			Utils.logcSep("'" + AUTO_FILE_NAME + "' not found.");
+			Utils.logcSep("'" + autoFile + "' not found.");
 		}
 		return autoMap;
 	}
 	
 	@SuppressWarnings("static-access")
-	public static CmdLineParams parseCmdLineParams(String[] args) 
+	public static CmdLineParams parseCmdLineParams(String[] args, 
+		String additionalParamsCfgFile) 
 		throws ExifTaggerException {
-		args = CmdLineParams.addParamsFromFile(args);
+		if (!StringUtils.isEmpty(additionalParamsCfgFile)) {
+			args = CmdLineParams.addParamsFromFile(args, additionalParamsCfgFile);
+		}
 		CmdLineParams cmdLineParams = new CmdLineParams();
 		Options options = new Options();
 		options.addOption(OptionBuilder
 			.isRequired(false)
 			.hasArg()
 			.withType(String.class)
-			.withDescription("Directory of configuration files")
+			.withDescription("Path and filename of exiftool")
+			.create(OPT_EXIFTOOL));
+		options.addOption(OptionBuilder
+			.isRequired(false)
+			.hasArg()
+			.withType(String.class)
+			.withDescription("Path of configuration files")
 			.create(OPT_CONFIGDIR));
 		options.addOption(OptionBuilder
 			.isRequired(false)
 			.hasArg()
 			.withType(String.class)
-			.withDescription("Filename of datafile")
+			.withDescription("Path and filename of datafile")
 			.create(OPT_DATA_FILE));
 		options.addOption(OptionBuilder
 			.isRequired()
 			.hasArg()
 			.withType(String.class)
-			.withDescription("Directory of imagefiles")
+			.withDescription("Path of imagefiles")
 			.create(OPT_IMAGE_DIR));
 		options.addOption(OptionBuilder
 			.isRequired()
@@ -178,9 +199,10 @@ public class CmdLineParams {
 			.create(OPT_WRITE_GEAR_INFO));
 		options.addOption(OptionBuilder
 			.isRequired(false)
-			.hasArg(false)
-			.withDescription("Run in automatic mode")
-			.create(OPT_AUTO));
+			.hasArg()
+			.withType(String.class)
+			.withDescription("Filename of autofile")
+			.create(OPT_AUTO_FILE));
 		OptionGroup optionGroup = new OptionGroup();
 		optionGroup.addOption(OptionBuilder
 			.isRequired(false)
@@ -198,12 +220,22 @@ public class CmdLineParams {
 		CommandLine cmd = null;
 		try {
 			cmd = parser.parse(options, args);
+			cmdLineParams.exiftool = cmd.getOptionValue(OPT_EXIFTOOL);
+			if (StringUtils.isEmpty(cmdLineParams.exiftool)) {
+				cmdLineParams.exiftool = DEF_EXIFTOOL;
+			}
 			cmdLineParams.configDir = cmd.getOptionValue(OPT_CONFIGDIR);
+			if (StringUtils.isEmpty(cmdLineParams.configDir)) {
+				cmdLineParams.configDir = DEF_CONFIG_DIR;
+			}
 			if (!StringUtils.endsWith(cmdLineParams.configDir, "/")) {
 				cmdLineParams.configDir += "/";
 			}
 			cmdLineParams.dataFile = cmd.getOptionValue(OPT_DATA_FILE);
 			cmdLineParams.imageDir = cmd.getOptionValue(OPT_IMAGE_DIR);
+			if (!StringUtils.endsWith(cmdLineParams.imageDir, "/")) {
+				cmdLineParams.imageDir += "/";
+			}
 			cmdLineParams.imageFileFormat = cmd.getOptionValue(OPT_IMAGE_FILE_FORMAT);
 			cmdLineParams.writeKeywords = 
 				cmd.hasOption(OPT_WRITE_KEYWORDS);
@@ -220,10 +252,10 @@ public class CmdLineParams {
 			} else {
 				cmdLineParams.writeMode = WriteMode.BackupOriginalFiles;				
 			}
-			cmdLineParams.auto = 
-				cmd.hasOption(OPT_AUTO);
-			if (cmdLineParams.auto) {
-				cmdLineParams.autoMap = getAutoMap();
+			if (cmd.hasOption(OPT_AUTO_FILE)) {
+				cmdLineParams.autoFile = 
+					cmd.getOptionValue(OPT_AUTO_FILE);
+				cmdLineParams.autoMap = getAutoMap(cmdLineParams.autoFile);
 			}
 		} catch (Exception e) {
 			Utils.logcSep(e.getMessage());

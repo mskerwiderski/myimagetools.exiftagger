@@ -99,9 +99,11 @@ public class DataFileNikonF6Parser extends AbstractDataFileParser {
 		String lensId =
 			"Nikon 1:" + maxApertureValue + " " + focalLengthRange;
 		GearInfoLens gearInfoLens = this.getGearInfos().getLens(lensId);
-		imageDataRecord.setLens(gearInfoLens);
-		imageDataRecord.setFocalLength(focalLengthActual,
-			gearInfoLens.getLensFocalLengthCorrFactor());
+		if (gearInfoLens != null) {
+			imageDataRecord.setLens(gearInfoLens);
+			imageDataRecord.setFocalLength(focalLengthActual,
+				gearInfoLens.getLensFocalLengthCorrFactor());
+		}
 		
 		// fld05: Metering system
 		String meteringSystem = csvRecord.get(5);

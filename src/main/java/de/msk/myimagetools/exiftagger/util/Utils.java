@@ -12,7 +12,8 @@ public class Utils {
 	}
 
 	public static final String EXIFTAGGER = "ExifTagger";
-	public static final String EXIFTAGGER_VERSION = "v1.3.0";
+	public static final String EXIFTAGGER_VERSION = "v1.4.0";
+	public static final String EXIFTAGGER_COPYRIGHT = "(c)2015 michael skerwiderski";
 	
 	public static final String LF = "\n";
 	public static final String LINE = StringUtils.repeat("-", 40);

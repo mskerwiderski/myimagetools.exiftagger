@@ -15,32 +15,31 @@ public class ExiftoolUtils {
 	private ExiftoolUtils() {
 	}
 
-	public static final String EXIFTOOL = "exiftool";
-	
-	public static void deleteAllXmpMskInfos(String fileName, CmdLineParams.WriteMode writeMode) throws ExifTaggerException {
+	public static void deleteAllXmpMskInfos(String exiftoolPathFileName,
+		String fileName, CmdLineParams.WriteMode writeMode) throws ExifTaggerException {
 		List<String> exiftoolArgs = new ArrayList<String>();
 		exiftoolArgs.add("-" + ExifSpecUtils.NAMESPACE_MSK + ":all=");
 		exiftoolArgs.add("-" + ExifSpecUtils.NAMESPACE_MSK_GI + ":all=");
 		exiftoolArgs.add("-" + ExifSpecUtils.NAMESPACE_MSK_HP + ":all=");
 		exiftoolArgs.add(fileName);
-		ExecExiftoolResult result = execExiftool(exiftoolArgs, writeMode);
+		ExecExiftoolResult result = execExiftool(exiftoolPathFileName, exiftoolArgs, writeMode);
 		if (!result.success) {
 			throw new ExifTaggerException("deleting xmp-msk infos failed: " + result);
 		}
 	}
 	
-	public static boolean exiftoolFound() {
+	public static boolean exiftoolFound(String exiftoolPathFileName) {
 		List<String> exiftoolArgs = new ArrayList<String>();
 		exiftoolArgs.add("-ver");
 		ExecExiftoolResult execExiftoolResult =
-			execExiftool(exiftoolArgs, null);	
+			execExiftool(exiftoolPathFileName, exiftoolArgs, null);	
 		if (execExiftoolResult.isSuccess()) {
-			Utils.logcSep("Program '" + EXIFTOOL + "' with version '" + 
+			Utils.logcSep("Program '" + exiftoolPathFileName + "' with version '" + 
 				execExiftoolResult.result + "' found.");
 		} else {
-			Utils.logcLn("Program '" + EXIFTOOL + "' not found.");
-			Utils.logcLn("Make sure that '" + EXIFTOOL + "' is installed and");
-			Utils.logcSep("that the path to '" + EXIFTOOL + "' is in your system path.");
+			Utils.logcLn("Program '" + exiftoolPathFileName + "' not found.");
+			Utils.logcLn("Make sure that '" + exiftoolPathFileName + "' is installed and");
+			Utils.logcSep("that the path to '" + exiftoolPathFileName + "' is in your system path.");
 			Utils.logcSep(Utils.EXIFTAGGER + " terminated.");
 		}
 		return execExiftoolResult.success;
@@ -66,11 +65,12 @@ public class ExiftoolUtils {
 		}
 	}
 
-	public static ExecExiftoolResult execExiftool(List<String> exiftoolArgs,
+	public static ExecExiftoolResult execExiftool(String exiftoolPathFileName, 
+		List<String> exiftoolArgs,
 		CmdLineParams.WriteMode writeMode) {
 		boolean success = false;
 		String result = null;
-		exiftoolArgs.add(0, EXIFTOOL);
+		exiftoolArgs.add(0, exiftoolPathFileName);
 		if (writeMode != null) {
 			if (writeMode.equals(
 				CmdLineParams.WriteMode.OverwriteOriginalFiles)) {

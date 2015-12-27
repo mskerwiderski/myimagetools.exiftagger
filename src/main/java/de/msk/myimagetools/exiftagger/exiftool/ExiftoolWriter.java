@@ -120,69 +120,87 @@ public class ExiftoolWriter {
 		Map<Integer, ImageDataRecord> 
 			imageDataRecordsMap = cameraAndFilmDataRecord.getImageDataRecordsMap();
 		
+		boolean exifInfoWritten = false;
 		try {
 			File dir = new File(cmdLineParams.imageDir);
 		    File[] files = dir.listFiles(new ImageFilenameFilter(cmdLineParams.imageFileFormat));
-		    Utils.logcLn(files.length + " matching files found in '" + cmdLineParams.imageDir + "'");
-			for (int i=0; i < files.length; i++) {
-				ImageDataRecord imageDataRecord = null;
-				if (imageDataRecordsMap != null) {
-					imageDataRecord = imageDataRecordsMap.get(getImageFileNameNumber(
-						cmdLineParams.imageFileFormat, files[i].getName()));
-				}
-				List<String> exiftoolArgs = new ArrayList<String>();
-				exiftoolArgs.add("-config");
-				exiftoolArgs.add(cmdLineParams.configDir + "exiftool-msk.cfg");
-				Utils.logc("Writing exif information to '" + files[i].getName() + "' ... ");
-				
-				String keywords = "";
-				
-				addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
-					"ExifTaggerVersion", Utils.EXIFTAGGER_VERSION);
-				addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
-					"ExifTaggerTimestamp", Utils.getExifTaggerTimestamp());
-
-				addArgsArtistRecord(cameraAndFilmDataRecord, exiftoolArgs);
-				keywords = addArgsCameraRecord(cmdLineParams, props, cameraAndFilmDataRecord, 
-					imageDataRecord, exiftoolArgs, keywords);
-				keywords = arrArgsLensRecord(cmdLineParams, gearInfos, props, 
-					cameraAndFilmDataRecord, imageDataRecord, exiftoolArgs, keywords);
-				
-				String[] focalLengths = DomainUtils.getFocalLengths(gearInfos,
-					cameraAndFilmDataRecord, imageDataRecord);
-				addArg(exiftoolArgs, "FocalLength", focalLengths != null ? focalLengths[0] : null);
-				addArg(exiftoolArgs, "FocalLengthIn35mmFormat", focalLengths != null ? focalLengths[1] : null);
-				
-				addArg(exiftoolArgs, "ISO", cameraAndFilmDataRecord.getFilmSpeed());
-				addArgsImageDataRecord(exiftoolArgs, imageDataRecord);
-				keywords = addArgsHybridProcessRecord(cmdLineParams, props, exiftoolArgs, keywords, hybridProcessRecord);
-				if ((imageDataRecord != null) && props.isKeyword(Keyword.tagsFromDataFile)) {
-					for (String tag : imageDataRecord.getTags()) {
-						keywords = addKeyword(keywords, tag);
+		    if (files == null) {
+		    	Utils.logcLn("No matching files found in '" + cmdLineParams.imageDir + "'.");
+		    } else {
+			    Utils.logcLn(files.length + " matching files found in '" + cmdLineParams.imageDir + "'.");
+				for (int i=0; i < files.length; i++) {
+					ImageDataRecord imageDataRecord = null;
+					int imageNo = getImageFileNameNumber(
+						cmdLineParams.imageFileFormat, files[i].getName());
+					if (imageDataRecordsMap != null) {
+						imageDataRecord = imageDataRecordsMap.get(imageNo);
 					}
+					List<String> exiftoolArgs = new ArrayList<String>();
+					exiftoolArgs.add("-config");
+					exiftoolArgs.add(cmdLineParams.configDir + "exiftool-msk.cfg");
+					Utils.logc("Writing exif information to '" + files[i].getName() + "' ... ");
+					
+					String keywords = "";
+					
+					addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
+						"ExifTaggerVersion", Utils.EXIFTAGGER_VERSION);
+					addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
+						"ExifTaggerTimestamp", Utils.getExifTaggerTimestamp());
+					addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
+						"ExifTaggerCopyright", Utils.EXIFTAGGER_COPYRIGHT);
+	
+					addArgsArtistRecord(cameraAndFilmDataRecord, exiftoolArgs);
+					keywords = addArgsCameraRecord(cmdLineParams, props, cameraAndFilmDataRecord, 
+						imageDataRecord, exiftoolArgs, keywords);
+					keywords = arrArgsLensRecord(cmdLineParams, gearInfos, props, 
+						cameraAndFilmDataRecord, imageDataRecord, exiftoolArgs, keywords);
+					
+					String[] focalLengths = DomainUtils.getFocalLengths(gearInfos,
+						cameraAndFilmDataRecord, imageDataRecord);
+					addArg(exiftoolArgs, "FocalLength", focalLengths != null ? focalLengths[0] : null);
+					addArg(exiftoolArgs, "FocalLengthIn35mmFormat", focalLengths != null ? focalLengths[1] : null);
+					
+					addArg(exiftoolArgs, "ISO", cameraAndFilmDataRecord.getFilmSpeed());
+					addArgsImageDataRecord(exiftoolArgs, imageDataRecord);
+					keywords = addArgsHybridProcessRecord(cmdLineParams, props, exiftoolArgs, keywords, hybridProcessRecord, imageNo);
+					if ((imageDataRecord != null) && props.isKeyword(Keyword.tagsFromDataFile)) {
+						for (String tag : imageDataRecord.getTags()) {
+							keywords = addKeyword(keywords, tag);
+						}
+					}
+					exiftoolArgs.add("-sep");
+					exiftoolArgs.add("#");
+					addArg(exiftoolArgs, "keywords", 
+						cmdLineParams.writeKeywords && !StringUtils.isEmpty(keywords) ? 
+							keywords : null);
+					addArg(exiftoolArgs, "subject", 
+						cmdLineParams.writeKeywords && !StringUtils.isEmpty(keywords) ? 
+							keywords : null);
+					exiftoolArgs.add("-iptc:all");
+					exiftoolArgs.add("-codedcharacterset=utf8");
+					log.debug("added keywords to exiftoolArgs: " + keywords);
+					exiftoolArgs.add(files[i].getAbsolutePath());
+					ExiftoolUtils.deleteAllXmpMskInfos(cmdLineParams.exiftool,
+						files[i].getAbsolutePath(), cmdLineParams.writeMode);
+					log.debug("all XmpMskInfos deleted.");
+					log.debug("exiftoolArgs: " + exiftoolArgs);
+					ExecExiftoolResult result = 
+						ExiftoolUtils.execExiftool(cmdLineParams.exiftool,
+							exiftoolArgs, cmdLineParams.writeMode);
+					Utils.logcLn(result.isSuccess() ?  
+						"done: " + result.getResult() : 
+						"failed: " + result.getResult());
 				}
-				exiftoolArgs.add("-sep");
-				exiftoolArgs.add("#");
-				addArg(exiftoolArgs, "keywords", 
-					cmdLineParams.writeKeywords && !StringUtils.isEmpty(keywords) ? 
-						keywords : null);
-				log.debug("added keywords to exiftoolArgs: " + keywords);
-				exiftoolArgs.add(files[i].getAbsolutePath());
-				ExiftoolUtils.deleteAllXmpMskInfos(
-					files[i].getAbsolutePath(), cmdLineParams.writeMode);
-				log.debug("all XmpMskInfos deleted.");
-				log.debug("exiftoolArgs: " + exiftoolArgs);
-				ExecExiftoolResult result = 
-					ExiftoolUtils.execExiftool(
-						exiftoolArgs, cmdLineParams.writeMode);
-				Utils.logcLn(result.isSuccess() ?  
-					"done: " + result.getResult() : 
-					"failed: " + result.getResult());
-			}
+				exifInfoWritten = true;
+		    }
 		} catch (Exception e) {
 			throw new ExifTaggerException(e);
 		} finally {
-			Utils.logcLn("Writing exif information to matching files successfully done.");
+			if (!exifInfoWritten) {
+				Utils.logcSep("Nothing to do.");
+			} else {
+				Utils.logcSep("Writing exif information to matching files successfully done.");
+			}
 		}
 	}
 	
@@ -221,6 +239,8 @@ public class ExiftoolWriter {
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensReleaseDate() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensManufacturingDate", 
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensManufacturingDate() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensKadlubeksCatalogNo", 
+			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensKadlubeksCatalogNo() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensAdditionalInfo", 
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensAdditionalInfo() : null);
 		if (props.isKeyword(Keyword.lens)) {
@@ -242,6 +262,9 @@ public class ExiftoolWriter {
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraManufacturingDate", 
 			cmdLineParams.writeGearInfo && (camera != null) ? 
 				camera.getCameraManufacturingDate() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraKadlubeksCatalogNo", 
+			cmdLineParams.writeGearInfo && (camera != null) ? 
+				camera.getCameraKadlubeksCatalogNo() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraAdditionalInfo", 
 			cmdLineParams.writeGearInfo && (camera != null) ? 
 				camera.getCameraAdditionalInfo() : null);
@@ -252,13 +275,15 @@ public class ExiftoolWriter {
 	}
 	
 	private static String addArgsHybridProcessRecord(CmdLineParams cmdLineParams, ExifTaggerProps props,
-		List<String> exiftoolArgs, String keywords, HybridProcessRecord hybridProcessRecord) {
+		List<String> exiftoolArgs, String keywords, HybridProcessRecord hybridProcessRecord, int imageNo) {
 		boolean writeXmp = cmdLineParams.writeHybridInfoXmp && 
 			(hybridProcessRecord != null);
 		boolean writeUserComment = cmdLineParams.writeHybridInfoUserComment && 
 			(hybridProcessRecord != null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "RollId", 
 			writeXmp ? hybridProcessRecord.getRollId() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "ImageNo", 
+			writeXmp ? String.valueOf(imageNo) : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DateOfDevelopment",
 			writeXmp ? hybridProcessRecord.getDateOfDevelopment() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmFormat",
@@ -314,6 +339,8 @@ public class ExiftoolWriter {
 	}
 	
 	private static void addArgsImageDataRecord(List<String> exiftoolArgs, ImageDataRecord imageDataRecord) {
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, 
+			"ImageNo", imageDataRecord != null ? imageDataRecord.getImageNumber().toString() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTC, 
 			"ObjectName", imageDataRecord != null ? imageDataRecord.getTitle() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTC, 
@@ -332,8 +359,6 @@ public class ExiftoolWriter {
 			"MeteringMode", true, imageDataRecord != null ? imageDataRecord.getMeteringMode() : null);
 		addArg(exiftoolArgs, 
 			"ExposureProgram", true, imageDataRecord != null ? imageDataRecord.getExposureProgram() : null);
-		addArg(exiftoolArgs, 
-			"ExposureCompensation", imageDataRecord != null ? imageDataRecord.getExposureCompensation() : null);
 		addArg(exiftoolArgs, 
 			"ExposureCompensation", imageDataRecord != null ? imageDataRecord.getExposureCompensation() : null);
 		// gps position

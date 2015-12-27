@@ -122,7 +122,7 @@ public class DataFilePhotoExifParser extends AbstractDataFileParser {
 		
 		// fld11: Comment ('%Ein Turm,#fo22,#fnd8,*,')
 		String comment = csvRecord.get(11);
-		ParserUtils.parseComment(this.getGearInfos(), imageDataRecord, comment);
+		DataFileParserUtils.parseComment(this.getGearInfos(), imageDataRecord, comment);
 		
 		return imageDataRecord;
 	}

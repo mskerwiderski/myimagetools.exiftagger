@@ -19,6 +19,11 @@ public class CmdLineReaderHybridProcessRecord {
 		GearInfoHybridProcess hybridProcess = CmdLineReaderUtils.getHybridProcess(cmdLineParams, gearInfos);
 		HybridProcessRecord hybridProcessRecord = new HybridProcessRecord();
 		hybridProcessRecord.setProcessType(HybridProcessType.valueOf(hybridProcess.getId()));
+		if (cameraAndFilmDataRecord.getArtist() == null) {
+			cameraAndFilmDataRecord.setArtist(
+				CmdLineReaderUtils.getArtist(
+					cmdLineParams, gearInfos));
+		}
 		if (cameraAndFilmDataRecord.getCamera() == null) {
 			cameraAndFilmDataRecord.setCamera(
 				CmdLineReaderUtils.getCamera(
@@ -57,7 +62,8 @@ public class CmdLineReaderHybridProcessRecord {
 			.append("Digitizing Hardware: " + hybridProcessRecord.getDigitizingHardware() + Utils.LF)
 			.append("Digitizing Software: " + hybridProcessRecord.getDigitizingSoftware() + Utils.LF);
 			hybridProcessRecord.setUserComment(buf.toString());
-		} else if (hybridProcessRecord.getProcessType().equals(HybridProcessType.InstantFilm)) {
+		} else if (hybridProcessRecord.getProcessType().equals(HybridProcessType.InstantFilm) ||
+			hybridProcessRecord.getProcessType().equals(HybridProcessType.InstantFilmBleachedNegative)) {
 			hybridProcessRecord.setFilmFormat(CmdLineReaderUtils.getFilmFormat(cmdLineParams, gearInfos));
 			if (StringUtils.isEmpty(cameraAndFilmDataRecord.getFilmName())) {
 				hybridProcessRecord.setFilmName(CmdLineReaderUtils.getInstantFilm(cmdLineParams, gearInfos));

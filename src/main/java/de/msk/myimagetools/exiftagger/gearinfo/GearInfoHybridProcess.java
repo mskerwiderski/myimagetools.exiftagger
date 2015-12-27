@@ -9,7 +9,8 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 		FilmSelfSlide,
 		FilmLabNegative,
 		FilmLabSlide,
-		InstantFilm
+		InstantFilm,
+		InstantFilmBleachedNegative
 	}
 	
 	private String hybridProcessId;

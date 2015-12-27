@@ -20,12 +20,13 @@
 # o Longitude: GPS position longitude like '11.80', '-15.30' (Positive value = East, Negative value = West).
 # o Comment: Comment for title, subtitle, flash, keyword(s) information:
 #   %<text> = title
-#   +<text> = subtitle (caption abstract)
+#   &<text> = subtitle (caption abstract)
 #   * = flash used
 #   #<text|shortcut> = keyword or shortcut of keyword (like configured in 'tags.cfg')
+#   $<value> = exposure compensation
 #   Examples:
-#	%View of Mountain,+Shot at night using tripod,#Austria,#At Night,#Tripod
-#   %Empire State Building,"+Shot at night, Exposure +2, Tripod used",#New York,#At Night,#Tripod
-#   %Kids at home,*,#At Home,#Kids
+#	%View of Mountain,&Shot at night using tripod,#Austria,#At Night,#Tripod
+#   %Empire State Building,"&Shot at night, Exposure +2, Tripod used",#New York,#At Night,#Tripod
+#   %Kids at home,*,#At Home,#Kids,$+1.5
 ImageNumber,DateTimeOriginal,ExposureTime,Aperture,CameraId,LensId,FocalLength,Latitude,Longitude,Comment
-01,2015:01:20 09:34:00,1/125,5.6,0,Minolta CLE,LM MIN 40,,48.30,-15.30,"%Kids at home,*,#At Home,#Kids"
+01,2015:01:20 09:34:00,1/125,5.6,Minolta CLE,LM MIN 40,,48.30,-15.30,"%Kids at home,*,#At Home,#Kids"
