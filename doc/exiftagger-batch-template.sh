@@ -8,4 +8,5 @@ java -jar exiftagger.jar \
 -writeHybridInfoXmp \
 -writeHybridInfoUserComment \
 -writeGearInfo \
+-writeEmptyValues \
 -overwriteOriginalFilesInPlace

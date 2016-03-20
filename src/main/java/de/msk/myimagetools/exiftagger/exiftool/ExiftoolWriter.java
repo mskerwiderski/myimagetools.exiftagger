@@ -62,36 +62,38 @@ public class ExiftoolWriter {
 	
 	private static final String KEYWORD_DELIMITER = "#";
 	
-	private static void addArg(List<String> args, String arg, String value) {
-		addArg(args, null, arg, false, value);
+	private static void addArg(List<String> args, String arg, boolean writeEmptyValue, String value) {
+		addArg(args, null, arg, false, writeEmptyValue, value);
 	}
 	
-	private static void addArg(List<String> args, String namespace, String arg, String value) {
-		addArg(args, namespace, arg, false, value);
+	private static void addArg(List<String> args, String namespace, String arg, boolean writeEmptyValue, String value) {
+		addArg(args, namespace, arg, false, writeEmptyValue, value);
 	}
 	
-	private static void addArg(List<String> args, String arg, boolean argIsEnum, String value) {
-		addArg(args, null, arg, argIsEnum, value);
+	private static void addArg(List<String> args, String arg, boolean argIsEnum, boolean writeEmptyValue, String value) {
+		addArg(args, null, arg, argIsEnum, writeEmptyValue, value);
 	}
 	
 	private static void addArg(List<String> args, String namespace, 
-		String arg, boolean argIsEnum, String value) {
+		String arg, boolean argIsEnum, boolean writeEmptyValue, String value) {
 		if (args == null) {
 			throw new IllegalArgumentException("args must not be null.");
 		}
 		if (StringUtils.isEmpty(arg)) {
 			throw new IllegalArgumentException("arg must not be empty.");
 		}
-		if (value == null) {
-			value = "";
-		}
-		if (!StringUtils.isEmpty(namespace)) {
-			arg = namespace + ":" + arg;
-		}
-		if (argIsEnum) {
-			args.add("-" + arg + "#=" + value);
-		} else {
-			args.add("-" + arg + "=" + value);
+		if (writeEmptyValue || !StringUtils.isEmpty(value)) {
+			if (value == null) {
+				value = "";
+			}
+			if (!StringUtils.isEmpty(namespace)) {
+				arg = namespace + ":" + arg;
+			}
+			if (argIsEnum) {
+				args.add("-" + arg + "#=" + value);
+			} else {
+				args.add("-" + arg + "=" + value);
+			}
 		}
 	}
 	
@@ -143,13 +145,13 @@ public class ExiftoolWriter {
 					String keywords = "";
 					
 					addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
-						"ExifTaggerVersion", Utils.EXIFTAGGER_VERSION);
+						"ExifTaggerVersion", cmdLineParams.writeEmptyValues, Utils.EXIFTAGGER_VERSION);
 					addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
-						"ExifTaggerTimestamp", Utils.getExifTaggerTimestamp());
+						"ExifTaggerTimestamp", cmdLineParams.writeEmptyValues, Utils.getExifTaggerTimestamp());
 					addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK, 
-						"ExifTaggerCopyright", Utils.EXIFTAGGER_COPYRIGHT);
+						"ExifTaggerCopyright", cmdLineParams.writeEmptyValues, Utils.EXIFTAGGER_COPYRIGHT);
 	
-					addArgsArtistRecord(cameraAndFilmDataRecord, exiftoolArgs);
+					addArgsArtistRecord(cmdLineParams, cameraAndFilmDataRecord, exiftoolArgs);
 					keywords = addArgsCameraRecord(cmdLineParams, props, cameraAndFilmDataRecord, 
 						imageDataRecord, exiftoolArgs, keywords);
 					keywords = arrArgsLensRecord(cmdLineParams, gearInfos, props, 
@@ -157,11 +159,11 @@ public class ExiftoolWriter {
 					
 					String[] focalLengths = DomainUtils.getFocalLengths(gearInfos,
 						cameraAndFilmDataRecord, imageDataRecord);
-					addArg(exiftoolArgs, "FocalLength", focalLengths != null ? focalLengths[0] : null);
-					addArg(exiftoolArgs, "FocalLengthIn35mmFormat", focalLengths != null ? focalLengths[1] : null);
+					addArg(exiftoolArgs, "FocalLength", cmdLineParams.writeEmptyValues, focalLengths != null ? focalLengths[0] : null);
+					addArg(exiftoolArgs, "FocalLengthIn35mmFormat", cmdLineParams.writeEmptyValues, focalLengths != null ? focalLengths[1] : null);
 					
-					addArg(exiftoolArgs, "ISO", cameraAndFilmDataRecord.getFilmSpeed());
-					addArgsImageDataRecord(exiftoolArgs, imageDataRecord);
+					addArg(exiftoolArgs, "ISO", cmdLineParams.writeEmptyValues, cameraAndFilmDataRecord.getFilmSpeed());
+					addArgsImageDataRecord(cmdLineParams, exiftoolArgs, imageDataRecord);
 					keywords = addArgsHybridProcessRecord(cmdLineParams, props, exiftoolArgs, keywords, hybridProcessRecord, imageNo);
 					if ((imageDataRecord != null) && props.isKeyword(Keyword.tagsFromDataFile)) {
 						for (String tag : imageDataRecord.getTags()) {
@@ -170,10 +172,10 @@ public class ExiftoolWriter {
 					}
 					exiftoolArgs.add("-sep");
 					exiftoolArgs.add("#");
-					addArg(exiftoolArgs, "keywords", 
+					addArg(exiftoolArgs, "keywords", cmdLineParams.writeEmptyValues, 
 						cmdLineParams.writeKeywords && !StringUtils.isEmpty(keywords) ? 
 							keywords : null);
-					addArg(exiftoolArgs, "subject", 
+					addArg(exiftoolArgs, "subject", cmdLineParams.writeEmptyValues, 
 						cmdLineParams.writeKeywords && !StringUtils.isEmpty(keywords) ? 
 							keywords : null);
 					exiftoolArgs.add("-iptc:all");
@@ -204,25 +206,26 @@ public class ExiftoolWriter {
 		}
 	}
 	
-	private static void addArgsArtistRecord(CameraAndFilmDataRecord cameraAndFilmDataRecord, 
+	private static void addArgsArtistRecord(CmdLineParams cmdLineParams,
+		CameraAndFilmDataRecord cameraAndFilmDataRecord, 
 		List<String> exiftoolArgs) {
 		GearInfoArtist artist = cameraAndFilmDataRecord.getArtist();
-		addArg(exiftoolArgs, "Artist", artist != null ? artist.getFullName() : null);
-		addArg(exiftoolArgs, "Creator", artist != null ? artist.getFullName() : null);
-		addArg(exiftoolArgs, "By-line", artist != null ? artist.getFullName() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorWorkEmail", artist != null ? artist.getEmailAddress() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorCountry", artist != null ? artist.getCountry() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorRegion", artist != null ? artist.getRegion() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorPostalCode", artist != null ? artist.getPostalCode() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorCity", artist != null ? artist.getCity() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorAddress", artist != null ? artist.getStreet() : null);
-		addArg(exiftoolArgs, "CopyrightNotice", artist != null ? artist.getCopyrightNotice() : null);
-		addArg(exiftoolArgs, "CopyrightStatus", true, artist != null ? 
+		addArg(exiftoolArgs, "Artist", cmdLineParams.writeEmptyValues, artist != null ? artist.getFullName() : null);
+		addArg(exiftoolArgs, "Creator", cmdLineParams.writeEmptyValues, artist != null ? artist.getFullName() : null);
+		addArg(exiftoolArgs, "By-line", cmdLineParams.writeEmptyValues, artist != null ? artist.getFullName() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorWorkEmail", cmdLineParams.writeEmptyValues, artist != null ? artist.getEmailAddress() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorCountry", cmdLineParams.writeEmptyValues, artist != null ? artist.getCountry() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorRegion", cmdLineParams.writeEmptyValues, artist != null ? artist.getRegion() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorPostalCode", cmdLineParams.writeEmptyValues, artist != null ? artist.getPostalCode() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorCity", cmdLineParams.writeEmptyValues, artist != null ? artist.getCity() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTCCORE, "CreatorAddress", cmdLineParams.writeEmptyValues, artist != null ? artist.getStreet() : null);
+		addArg(exiftoolArgs, "CopyrightNotice", cmdLineParams.writeEmptyValues, artist != null ? artist.getCopyrightNotice() : null);
+		addArg(exiftoolArgs, "CopyrightStatus", true, cmdLineParams.writeEmptyValues, artist != null ? 
 			ExifSpecUtils.ExifCopyrightStatus.getValueByName(artist.getCopyrightStatus()) : null);
-		addArg(exiftoolArgs, "Rights", artist != null ? artist.getCopyrightNotice() : null);
-		addArg(exiftoolArgs, "UsageTerms", artist != null ? artist.getUsageTerms() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_XMP, "xmpRights", artist != null ? "True" : null);
-		addArg(exiftoolArgs, "CopyrightFlag", artist != null ? "True" : null);
+		addArg(exiftoolArgs, "Rights", cmdLineParams.writeEmptyValues, artist != null ? artist.getCopyrightNotice() : null);
+		addArg(exiftoolArgs, "UsageTerms", cmdLineParams.writeEmptyValues, artist != null ? artist.getUsageTerms() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_XMP, "xmpRights", cmdLineParams.writeEmptyValues, artist != null ? "True" : null);
+		addArg(exiftoolArgs, "CopyrightFlag", cmdLineParams.writeEmptyValues, artist != null ? "True" : null);
 	}
 	
 	private static String arrArgsLensRecord(CmdLineParams cmdLineParams, GearInfos gearInfos, ExifTaggerProps props,
@@ -230,18 +233,18 @@ public class ExiftoolWriter {
 		ImageDataRecord imageDataRecord, List<String> exiftoolArgs, String keywords) {
 		GearInfoLens lens = DomainUtils.getLens(
 			gearInfos, cameraAndFilmDataRecord, imageDataRecord);
-		addArg(exiftoolArgs, "LensMake", lens != null ? lens.getLensMake() : null);
-		addArg(exiftoolArgs, "LensModel", lens != null ? lens.getLensModel() : null);
-		addArg(exiftoolArgs, "MaxApertureValue", lens != null ? lens.getLensMaxAperture() : null);
-		addArg(exiftoolArgs, "LensSerialNumber", lens != null ? lens.getLensSerialNumber() : null);
-		addArg(exiftoolArgs, "Lens", lens != null ? lens.getMakeAndModel() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensReleaseDate",
+		addArg(exiftoolArgs, "LensMake", cmdLineParams.writeEmptyValues, lens != null ? lens.getLensMake() : null);
+		addArg(exiftoolArgs, "LensModel", cmdLineParams.writeEmptyValues, lens != null ? lens.getLensModel() : null);
+		addArg(exiftoolArgs, "MaxApertureValue", cmdLineParams.writeEmptyValues, lens != null ? lens.getLensMaxAperture() : null);
+		addArg(exiftoolArgs, "LensSerialNumber", cmdLineParams.writeEmptyValues, lens != null ? lens.getLensSerialNumber() : null);
+		addArg(exiftoolArgs, "Lens", cmdLineParams.writeEmptyValues, lens != null ? lens.getMakeAndModel() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensReleaseDate", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensReleaseDate() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensManufacturingDate", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensManufacturingDate", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensManufacturingDate() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensKadlubeksCatalogNo", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensKadlubeksCatalogNo", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensKadlubeksCatalogNo() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensAdditionalInfo", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "LensAdditionalInfo", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (lens != null) ? lens.getLensAdditionalInfo() : null);
 		if (props.isKeyword(Keyword.lens)) {
 			keywords = addKeyword(keywords, lens != null ? lens.getMakeAndModel() : null);
@@ -253,19 +256,19 @@ public class ExiftoolWriter {
 		CameraAndFilmDataRecord cameraAndFilmDataRecord, 
 		ImageDataRecord imageDataRecord, List<String> exiftoolArgs, String keywords) {
 		GearInfoCamera camera = DomainUtils.getCamera(cameraAndFilmDataRecord, imageDataRecord);
-		addArg(exiftoolArgs, "Make", camera != null ? camera.getCameraMake() : null);
-		addArg(exiftoolArgs, "Model", camera != null ? camera.getCameraModel() : null);
-		addArg(exiftoolArgs, "SerialNumber", camera != null ? camera.getCameraSerialNumber() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraReleaseDate", 
+		addArg(exiftoolArgs, "Make", cmdLineParams.writeEmptyValues, camera != null ? camera.getCameraMake() : null);
+		addArg(exiftoolArgs, "Model", cmdLineParams.writeEmptyValues, camera != null ? camera.getCameraModel() : null);
+		addArg(exiftoolArgs, "SerialNumber", cmdLineParams.writeEmptyValues, camera != null ? camera.getCameraSerialNumber() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraReleaseDate", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (camera != null) ? 
 				camera.getCameraReleaseDate() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraManufacturingDate", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraManufacturingDate", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (camera != null) ? 
 				camera.getCameraManufacturingDate() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraKadlubeksCatalogNo", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraKadlubeksCatalogNo", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (camera != null) ? 
 				camera.getCameraKadlubeksCatalogNo() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraAdditionalInfo", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_GI, "cameraAdditionalInfo", cmdLineParams.writeEmptyValues, 
 			cmdLineParams.writeGearInfo && (camera != null) ? 
 				camera.getCameraAdditionalInfo() : null);
 		if (props.isKeyword(Keyword.camera)) {
@@ -280,96 +283,110 @@ public class ExiftoolWriter {
 			(hybridProcessRecord != null);
 		boolean writeUserComment = cmdLineParams.writeHybridInfoUserComment && 
 			(hybridProcessRecord != null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "RollId", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "RollId", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getRollId() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "ImageNo", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "ImageNo", cmdLineParams.writeEmptyValues, 
 			writeXmp ? String.valueOf(imageNo) : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DateOfDevelopment",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DateOfDevelopment", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDateOfDevelopment() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmFormat",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmFormat", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getFilmFormat() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmName",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmName", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getFilmName() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmExpirationDate",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "FilmExpirationDate", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getFilmExpirationDate() : null);
 		if (props.isKeyword(Keyword.film)) {
 			keywords = addKeyword(keywords, hybridProcessRecord != null ? 
 				hybridProcessRecord.getFilmName() : null);
 		}
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DeveloperName", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DeveloperName", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDeveloperName() : null);
 		if (props.isKeyword(Keyword.developer)) {
 			keywords = addKeyword(keywords, hybridProcessRecord != null ? 
 				hybridProcessRecord.getDeveloperName() : null);
 		}
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DeveloperDilution", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DeveloperDilution", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDeveloperDilution() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentTemperature", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentTemperature", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentTemperature() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentTime",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentTime", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentTime() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentTime2",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentTime2", cmdLineParams.writeEmptyValues, 
 			writeXmp && hybridProcessRecord.getProcessType().equals(HybridProcessType.FilmSelfSlide) ? 
 				hybridProcessRecord.getDevelopmentTime2() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentProcess", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentProcess", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentProcess() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentAgitations", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentAgitations", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentAgitations() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentPullPushFstops", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentPullPushFstops", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentPullPushFstops() : null);
 		if (props.isKeyword(Keyword.developmentPullPushFstops)) {
 			keywords = addKeyword(keywords, hybridProcessRecord != null ? 
 				hybridProcessRecord.getDevelopmentPullPushFstops() : null);
 		}
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentHardware",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentHardware", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentHardware() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentLaboratory",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DevelopmentLaboratory", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDevelopmentLaboratory() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DigitizingHardware",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DigitizingHardware", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDigitizingHardware() : null);
 		if (props.isKeyword(Keyword.digitizingHardware)) {
 			keywords = addKeyword(keywords, hybridProcessRecord != null ? 
 				hybridProcessRecord.getDigitizingHardware() : null);
 		}
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DigitizingSoftware", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "DigitizingSoftware", cmdLineParams.writeEmptyValues, 
 			writeXmp ? hybridProcessRecord.getDigitizingSoftware() : null);
-		addArg(exiftoolArgs, "UserComment",
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, "AdditionalInfo", cmdLineParams.writeEmptyValues, 
+			writeXmp ? hybridProcessRecord.getAdditionalInfo() : null);
+		addArg(exiftoolArgs, "UserComment", cmdLineParams.writeEmptyValues, 
 			writeUserComment ? hybridProcessRecord.getUserComment() : null);
 		return keywords;
 	}
 	
-	private static void addArgsImageDataRecord(List<String> exiftoolArgs, ImageDataRecord imageDataRecord) {
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP, 
-			"ImageNo", imageDataRecord != null ? imageDataRecord.getImageNumber().toString() : null);
+	private static void addArgsImageDataRecord(CmdLineParams cmdLineParams, List<String> exiftoolArgs, ImageDataRecord imageDataRecord) {
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_MSK_HP,  
+			"ImageNo", cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getImageNumber().toString() : null);
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTC,  
+			"ObjectName", cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getTitle() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTC, 
-			"ObjectName", imageDataRecord != null ? imageDataRecord.getTitle() : null);
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_IPTC, 
-			"Caption-Abstract", imageDataRecord != null ? imageDataRecord.getCaptionAbstract() : null);
-		addArg(exiftoolArgs, "DateTimeOriginal", 
+			"Caption-Abstract", cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getCaptionAbstract() : null);
+		addArg(exiftoolArgs, "DateTimeOriginal", cmdLineParams.writeEmptyValues,  
 			imageDataRecord != null ? imageDataRecord.getDateTimeOriginal() : null);
-		addArg(exiftoolArgs, "ExposureTime", 
+		addArg(exiftoolArgs, "ExposureTime", cmdLineParams.writeEmptyValues, 
 			imageDataRecord != null ? imageDataRecord.getExposureTime() : null);
-		addArg(exiftoolArgs, "FNumber", 
+		addArg(exiftoolArgs, "FNumber", cmdLineParams.writeEmptyValues, 
 			imageDataRecord != null ? imageDataRecord.getAperture() : null);
 		addArg(exiftoolArgs, 
-			"Flash", true, imageDataRecord != null ? imageDataRecord.getFlashMode() : null);
+			"Flash", true, cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getFlashMode() : null);
 		addArg(exiftoolArgs, 
-			"ExposureMode", true, imageDataRecord != null ? imageDataRecord.getExposureMode() : null);
+			"ExposureMode", true, cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getExposureMode() : null);
 		addArg(exiftoolArgs, 
-			"MeteringMode", true, imageDataRecord != null ? imageDataRecord.getMeteringMode() : null);
+			"MeteringMode", true, cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getMeteringMode() : null);
 		addArg(exiftoolArgs, 
-			"ExposureProgram", true, imageDataRecord != null ? imageDataRecord.getExposureProgram() : null);
+			"ExposureProgram", true, cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getExposureProgram() : null);
 		addArg(exiftoolArgs, 
-			"ExposureCompensation", imageDataRecord != null ? imageDataRecord.getExposureCompensation() : null);
+			"ExposureCompensation", cmdLineParams.writeEmptyValues, 
+			imageDataRecord != null ? imageDataRecord.getExposureCompensation() : null);
 		// gps position
 		GpsPosition gpsPosition = (imageDataRecord != null ? imageDataRecord.getGpsPosition() : null);
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_EXIF, "GpsLatitude", 
+			cmdLineParams.writeEmptyValues, 
 			(gpsPosition != null ? gpsPosition.getLatitude() : null));
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_EXIF, "GpsLatitudeRef", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_EXIF, "GpsLatitudeRef",
+			cmdLineParams.writeEmptyValues, 	
 			(gpsPosition != null ? gpsPosition.getLatitudeRef() : null));
-		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_EXIF, "GpsLongitude", 
+		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_EXIF, "GpsLongitude",
+			cmdLineParams.writeEmptyValues, 
 			(gpsPosition != null ? gpsPosition.getLongitude() : null));
 		addArg(exiftoolArgs, ExifSpecUtils.NAMESPACE_EXIF, "GpsLongitudeRef",
+			cmdLineParams.writeEmptyValues, 
 			(gpsPosition != null ? gpsPosition.getLongitudeRef() : null));
 	}
 }

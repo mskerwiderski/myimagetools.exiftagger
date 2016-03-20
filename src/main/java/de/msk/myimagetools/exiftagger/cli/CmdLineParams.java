@@ -33,6 +33,7 @@ public class CmdLineParams {
 	 * [-writeHybridInfoXmp]
 	 * [-writeHybridInfoUserComment]
 	 * [-writeGearInfo]
+	 * [-writeEmptyValues]
 	 * [-deleteBackupFiles | -overwriteOriginalFiles | -overwriteOriginalFilesInPlace]
 	 * [-autoFile <fileName>]
 	 */
@@ -45,6 +46,7 @@ public class CmdLineParams {
 	private static final String OPT_WRITE_HYBRID_INFO_XMP = "writeHybridInfoXmp";
 	private static final String OPT_WRITE_HYBRID_INFO_USER_COMMENT = "writeHybridInfoUserComment";
 	private static final String OPT_WRITE_GEAR_INFO = "writeGearInfo";
+	private static final String OPT_WRITE_EMPTY_VALUES = "writeEmptyValues";
 	private static final String OPT_OVERWRITE_ORIGINAL_FILES = "overwriteOriginalFiles";
 	private static final String OPT_OVERWRITE_ORIGINAL_FILES_IN_PLACE = "overwriteOriginalFilesInPlace";
 	private static final String OPT_AUTO_FILE = "autoFile";
@@ -59,6 +61,7 @@ public class CmdLineParams {
 		+ " [-" + OPT_WRITE_HYBRID_INFO_XMP + "]"
 		+ " [-" + OPT_WRITE_HYBRID_INFO_USER_COMMENT + "]"
 		+ " [-" + OPT_WRITE_GEAR_INFO + "]"
+		+ " [-" + OPT_WRITE_EMPTY_VALUES + "]"
 		+ " [-" + OPT_OVERWRITE_ORIGINAL_FILES 
 		+ " | -" + OPT_OVERWRITE_ORIGINAL_FILES_IN_PLACE + "]"
 		+ " [-" + OPT_AUTO_FILE + "]";
@@ -74,6 +77,7 @@ public class CmdLineParams {
 	public boolean writeHybridInfoXmp;
 	public boolean writeHybridInfoUserComment;
 	public boolean writeGearInfo;
+	public boolean writeEmptyValues;
 	public enum WriteMode {
 		BackupOriginalFiles,
 		OverwriteOriginalFiles,
@@ -95,8 +99,9 @@ public class CmdLineParams {
 			+ ", writeKeywords=" + writeKeywords + ", writeHybridInfoXmp="
 			+ writeHybridInfoXmp + ", writeHybridInfoUserComment="
 			+ writeHybridInfoUserComment + ", writeGearInfo="
-			+ writeGearInfo + ", writeMode=" + writeMode + ", autoFile="
-			+ autoFile + ", autoMap=" + autoMap + "]";
+			+ writeGearInfo + ", writeEmptyValues=" + writeEmptyValues
+			+ ", writeMode=" + writeMode + ", autoFile=" + autoFile
+			+ ", autoMap=" + autoMap + "]";
 	}
 
 	private static String[] addParamsFromFile(String[] args, String additionalParamsCfgFile) 
@@ -245,6 +250,8 @@ public class CmdLineParams {
 				cmd.hasOption(OPT_WRITE_HYBRID_INFO_USER_COMMENT);
 			cmdLineParams.writeGearInfo = 
 				cmd.hasOption(OPT_WRITE_GEAR_INFO);
+			cmdLineParams.writeEmptyValues = 
+				cmd.hasOption(OPT_WRITE_EMPTY_VALUES);
 			if (cmd.hasOption(OPT_OVERWRITE_ORIGINAL_FILES)) {
 				cmdLineParams.writeMode = WriteMode.OverwriteOriginalFiles;
 			} else if (cmd.hasOption(OPT_OVERWRITE_ORIGINAL_FILES_IN_PLACE)) {

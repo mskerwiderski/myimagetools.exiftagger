@@ -35,7 +35,7 @@ public class CmdLineReaderUtils {
 		return CmdLineReader.getStringValue(
 			cmdLineParams,
 			"Film Speed (ISO)", 
-			"25 50 64 100 200 400 800 1600 3200 6400 12800", "<n>", 
+			"eg. 25 50 64 100 200 400 800 1600 3200 6400 12800", "<n>", 
 			"[0-9]+");
 	}
 
@@ -233,5 +233,14 @@ public class CmdLineReaderUtils {
 			cmdLineParams,
 			gearInfos.getDigitizingSoftware(), 
 			"Digitizing Software", "Digitizing Software", true);
+	}
+	
+	public static String getAdditionalInfo(CmdLineParams cmdLineParams) 
+		throws ExifTaggerException {
+		return CmdLineReader.getStringValue(
+			cmdLineParams,
+			"Additional Info", 
+			"Developed perfectly.", "<text>", 
+			".+", false);
 	}
 }

@@ -23,6 +23,7 @@ public class HybridProcessRecord {
 	private String developmentLaboratory;
 	private String digitizingHardware; // Epson Perfection V850 Pro
 	private String digitizingSoftware; // VueScan v9.5.06, PhotoLine v18.51, ColorPerfect v2.16
+	private String additionalInfo; // developed perfectly
 	private String userComment;
 
 	public HybridProcessType getProcessType() {
@@ -169,6 +170,14 @@ public class HybridProcessRecord {
 		this.digitizingSoftware = digitizingSoftware;
 	}
 
+	public String getAdditionalInfo() {
+		return additionalInfo;
+	}
+
+	public void setAdditionalInfo(String additionalInfo) {
+		this.additionalInfo = additionalInfo;
+	}
+
 	public String getUserComment() {
 		return userComment;
 	}
@@ -194,6 +203,7 @@ public class HybridProcessRecord {
 			+ ", developmentLaboratory=" + developmentLaboratory
 			+ ", digitizingHardware=" + digitizingHardware
 			+ ", digitizingSoftware=" + digitizingSoftware
-			+ ", userComment=" + userComment + "]";
+			+ ", additionalInfo=" + additionalInfo + ", userComment="
+			+ userComment + "]";
 	}
 }

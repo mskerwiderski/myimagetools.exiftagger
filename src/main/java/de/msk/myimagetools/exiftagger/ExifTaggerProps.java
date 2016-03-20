@@ -2,6 +2,7 @@ package de.msk.myimagetools.exiftagger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,21 @@ public class ExifTaggerProps {
 	private String monthYearExample;
 	private String keywords;
 	
+	private static final String YEAR_CURRENT = "$YEAR";
+	private static final String MONTH_CURRENT = "$MONTH";
+	private static final String DAY_OF_MONTH_CURRENT = "$DAY_OF_MONTH";
+	private static Calendar CALENDAR = Calendar.getInstance();
+	
+	private static String parsePlaceholders(String propStr) {
+		propStr = StringUtils.replace(propStr, YEAR_CURRENT, 
+			String.valueOf(CALENDAR.get(Calendar.YEAR)));
+		propStr = StringUtils.replace(propStr, MONTH_CURRENT, 
+			StringUtils.leftPad(String.valueOf(CALENDAR.get(Calendar.MONTH)), 2, '0'));
+		propStr = StringUtils.replace(propStr, DAY_OF_MONTH_CURRENT, 
+			StringUtils.leftPad(String.valueOf(CALENDAR.get(Calendar.DAY_OF_MONTH)), 2, '0'));
+		return propStr;
+	}
+	
 	public static ExifTaggerProps load(String configDir) throws ExifTaggerException {
 		if (configDir == null) {
 			configDir = "";
@@ -43,13 +59,13 @@ public class ExifTaggerProps {
 			propsFile.load(fileInputStream);
 			props.rollIdRegEx = propsFile.getProperty("rollIdRegEx");
 			props.rollIdFormat = propsFile.getProperty("rollIdFormat");
-			props.rollIdExample = propsFile.getProperty("rollIdExample");
+			props.rollIdExample = parsePlaceholders(propsFile.getProperty("rollIdExample"));
 			props.dateRegEx = propsFile.getProperty("dateRegEx");
 			props.dateFormat = propsFile.getProperty("dateFormat");
-			props.dateExample = propsFile.getProperty("dateExample");
+			props.dateExample = parsePlaceholders(propsFile.getProperty("dateExample"));
 			props.monthYearRegEx = propsFile.getProperty("monthYearRegEx");
 			props.monthYearFormat = propsFile.getProperty("monthYearFormat");
-			props.monthYearExample = propsFile.getProperty("monthYearExample");
+			props.monthYearExample = parsePlaceholders(propsFile.getProperty("monthYearExample"));
 			props.keywords = propsFile.getProperty("keywords");
 		} catch (Exception e) {
 			throw new ExifTaggerException(e);

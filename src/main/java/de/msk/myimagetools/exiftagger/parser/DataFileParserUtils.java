@@ -1,5 +1,6 @@
 package de.msk.myimagetools.exiftagger.parser;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
@@ -30,21 +31,25 @@ public class DataFileParserUtils {
 		throws ExifTaggerException {
 		CameraAndFilmDataRecord filmDataRecord = new CameraAndFilmDataRecord();
 		if (!StringUtils.isEmpty(cmdLineParams.dataFile)) {
-			CSVRecord record = getFirstCsvRecordOfDataFile(cmdLineParams.dataFile, "#");
-			if (StringUtils.equals(record.get(0), "Film speed")) {
-				Utils.logcSep("Nikon F6 datafile detected.");
-				filmDataRecord = 
-					new DataFileNikonF6Parser(cmdLineParams, gearInfos).process();
-			} else if (StringUtils.equals(record.get(0), "ImageNumber")) {
-				Utils.logcSep("Generic datafile detected.");
-				filmDataRecord = 
-					new DataFileGenericParser(cmdLineParams, gearInfos).process();
-			} else if (StringUtils.equals(record.get(0), "Number")) {
-				Utils.logcSep("PhotoExif datafile detected.");
-				filmDataRecord = 
-					new DataFilePhotoExifParser(cmdLineParams, gearInfos).process();
+			if (new File(cmdLineParams.dataFile).isFile()) {
+				CSVRecord record = getFirstCsvRecordOfDataFile(cmdLineParams.dataFile, "#");
+				if (StringUtils.equals(record.get(0), "Film speed")) {
+					Utils.logcSep("Nikon F6 datafile detected.");
+					filmDataRecord = 
+						new DataFileNikonF6Parser(cmdLineParams, gearInfos).process();
+				} else if (StringUtils.equals(record.get(0), "ImageNumber")) {
+					Utils.logcSep("Generic datafile detected.");
+					filmDataRecord = 
+						new DataFileGenericParser(cmdLineParams, gearInfos).process();
+				} else if (StringUtils.equals(record.get(0), "Number")) {
+					Utils.logcSep("PhotoExif datafile detected.");
+					filmDataRecord = 
+						new DataFilePhotoExifParser(cmdLineParams, gearInfos).process();
+				} else {
+					throw new ExifTaggerException("Datafile '" + cmdLineParams.dataFile + "' could not be parsed due to unknown format!");
+				}
 			} else {
-				throw new ExifTaggerException("Datafile '" + cmdLineParams.dataFile + "' could not be parsed due to unknown format!");
+				Utils.logcSep("No datafile detected.");
 			}
 		}
 		return filmDataRecord;

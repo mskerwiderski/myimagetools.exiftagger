@@ -1,3 +1,11 @@
+[v1.5.0]
+* Hybrid process 'DigitalOnly' added (e.g. for tagging exif information of adapted lenses).
+* Hybrid process 'InstantFilmBleachedNegative' added.
+* Field "Additional Info" added to hybrid process record.
+* If no datafile is found (even if the option "dataFile" is set), ExifTagger goes on without datafile.
+* Example values are displayed with current date values.
+* Option 'writeEmptyValues' added. If this option is set, empty values are not written.
+
 [v1.4.0]
 * Changes in PhotoExifParser and GenericParser (Comment Field), see also "exiftagger-datafile-template.txt"
 	o "&" indicates subtitle (instead of "+" in previous versions)
