@@ -55,7 +55,7 @@ public class CmdLineReaderUtils {
 		return CmdLineReader.getStringValue(
 			cmdLineParams,
 			"Developer Dilution", 
-			"1+10", "1+<n>", "1\\+[0-9]+");
+			"1+10 or 10+20+220", "<n1>+<n2>[+<n3>]", "[0-9]+\\+[0-9]+(\\+[0-9]+)?");
 	}
 	
 	public static String getDevelopmentTime(CmdLineParams cmdLineParams, int number) 

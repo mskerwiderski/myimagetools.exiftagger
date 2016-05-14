@@ -11,7 +11,7 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 		FilmLabSlide(true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false),
 		InstantFilm(true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false),
 		InstantFilmBleachedNegative(true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false),
-		DigitalOnly(true, true, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false);
+		DigitalOnly(true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false);
 		
 		private boolean getArtist;
 		private boolean getCamera;

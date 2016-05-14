@@ -1,3 +1,10 @@
+[v1.5.1]
+* Minor changes:
+	o Developer dilution accepts now the pattern '<n1>+<n2>[+<n3>]'
+	o In hybrid process 'DigitalOnly' the 'camera' and 'digitizing software' is not read from the command line anymore.
+* Bugfixes:
+	o Option 'writeEmptyValues' can now be set.
+	
 [v1.5.0]
 * Hybrid process 'DigitalOnly' added (e.g. for tagging exif information of adapted lenses).
 * Hybrid process 'InstantFilmBleachedNegative' added.

@@ -204,6 +204,11 @@ public class CmdLineParams {
 			.create(OPT_WRITE_GEAR_INFO));
 		options.addOption(OptionBuilder
 			.isRequired(false)
+			.hasArg(false)
+			.withDescription("Write empty values to tags")
+			.create(OPT_WRITE_EMPTY_VALUES));
+		options.addOption(OptionBuilder
+			.isRequired(false)
 			.hasArg()
 			.withType(String.class)
 			.withDescription("Filename of autofile")
