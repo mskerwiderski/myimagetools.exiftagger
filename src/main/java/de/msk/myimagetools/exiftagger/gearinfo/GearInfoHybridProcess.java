@@ -4,6 +4,8 @@ import java.util.List;
 
 public class GearInfoHybridProcess extends AbstractGearInfo {
 
+	private static final long serialVersionUID = 5769135246353065343L;
+
 	public enum HybridProcessType {
 		FilmSelfNegative(true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, false, true, true),
 		FilmSelfSlide(true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true),

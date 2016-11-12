@@ -1,11 +1,14 @@
 package de.msk.myimagetools.exiftagger.domain;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoArtist;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoCamera;
 
-public class CameraAndFilmDataRecord {
+public class CameraAndFilmDataRecord implements Serializable {
+
+	private static final long serialVersionUID = -7183748792034720702L;
 
 	private GearInfoArtist artist;
 	private GearInfoCamera camera;

@@ -4,6 +4,8 @@ import java.util.List;
 
 public class GearInfoDevelopmentHardware extends AbstractGearInfo {
 
+	private static final long serialVersionUID = -3710274395456616023L;
+
 	private String developmentHardware;
 	
 	public GearInfoDevelopmentHardware() {

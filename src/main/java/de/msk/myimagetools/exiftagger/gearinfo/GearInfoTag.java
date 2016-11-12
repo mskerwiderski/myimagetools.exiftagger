@@ -4,6 +4,8 @@ import java.util.List;
 
 public class GearInfoTag extends AbstractGearInfo {
 
+	private static final long serialVersionUID = -5004586110595660056L;
+
 	private String tagId;
 	private String tagName;
 	

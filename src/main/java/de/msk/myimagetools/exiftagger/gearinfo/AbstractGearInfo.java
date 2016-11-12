@@ -1,12 +1,15 @@
 package de.msk.myimagetools.exiftagger.gearinfo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class AbstractGearInfo implements Comparable<AbstractGearInfo> {
+public abstract class AbstractGearInfo implements Comparable<AbstractGearInfo>, Serializable {
+	private static final long serialVersionUID = -1464696138369695087L;
+
 	public void init(CSVRecord record) {
 		List<String> values = new ArrayList<String>();
 		if (record == null) {

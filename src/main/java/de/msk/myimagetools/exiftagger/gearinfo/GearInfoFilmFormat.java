@@ -4,6 +4,8 @@ import java.util.List;
 
 public class GearInfoFilmFormat extends AbstractGearInfo {
 
+	private static final long serialVersionUID = 1988006620626604366L;
+
 	private String filmFormat;
 	
 	public GearInfoFilmFormat() {

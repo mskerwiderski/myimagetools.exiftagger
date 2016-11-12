@@ -1,5 +1,6 @@
 package de.msk.myimagetools.exiftagger.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +10,12 @@ import org.apache.commons.lang3.math.NumberUtils;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoCamera;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoLens;
 
-public class ImageDataRecord {
-	public static class GpsPosition {
+public class ImageDataRecord implements Serializable {
+	private static final long serialVersionUID = -2985591936770932928L;
+
+	public static class GpsPosition implements Serializable {
+		private static final long serialVersionUID = -2045769796935751113L;
+
 		private String latitude;
 		private String latitudeRef;
 		private String longitude;

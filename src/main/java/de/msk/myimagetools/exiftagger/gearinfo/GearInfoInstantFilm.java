@@ -4,6 +4,8 @@ import java.util.List;
 
 public class GearInfoInstantFilm extends AbstractGearInfo {
 
+	private static final long serialVersionUID = -5439117400228106386L;
+
 	private String instantFilmId;
 	private String instantFilmName;
 	

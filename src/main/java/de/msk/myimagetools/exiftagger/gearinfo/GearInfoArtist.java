@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class GearInfoArtist extends AbstractGearInfo {
 
+	private static final long serialVersionUID = -1389023447975989277L;
+
 	private String id;
 	private String lastName;
 	private String firstName;

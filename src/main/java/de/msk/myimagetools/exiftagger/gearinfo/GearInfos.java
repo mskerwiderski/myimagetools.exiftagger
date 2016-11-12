@@ -13,6 +13,10 @@ import de.msk.myimagetools.exiftagger.util.csv.CsvUtils;
 
 public class GearInfos {
 
+	private static final String CFG_FILE_NAME_EXEC_MODES = "execmodes.cfg";
+	private Map<String, GearInfoExecMode> mapExecModes = null;
+	private List<GearInfoExecMode> listExecModes = null;
+	
 	private static final String CFG_FILE_NAME_HYBRID_PROCESSES = "hybridprocesses.cfg";
 	private Map<String, GearInfoHybridProcess> mapHybridProcesses = null;
 	private List<GearInfoHybridProcess> listHybridProcesses = null;
@@ -67,6 +71,14 @@ public class GearInfos {
 	private List<GearInfoTag> listTags = null;
 	
 	private String configDir;
+	
+	public List<GearInfoExecMode> getExecModes() {
+		return this.listExecModes;
+	}
+
+	public GearInfoExecMode getExecMode(String execMode) { 
+		return this.mapExecModes.get(execMode);
+	}
 	
 	public List<GearInfoHybridProcess> getHybridProcesses() {
 		return this.listHybridProcesses;
@@ -168,6 +180,12 @@ public class GearInfos {
 	
 	public GearInfos(String configDir) throws ExifTaggerException {
 		this.configDir = configDir;
+		this.listExecModes = initList(
+			GearInfoExecMode.class, 
+			CFG_FILE_NAME_EXEC_MODES);
+		this.mapExecModes = initMap(
+			GearInfoExecMode.class, 
+			CFG_FILE_NAME_EXEC_MODES);
 		this.listHybridProcesses = initList(
 			GearInfoHybridProcess.class, 
 			CFG_FILE_NAME_HYBRID_PROCESSES);

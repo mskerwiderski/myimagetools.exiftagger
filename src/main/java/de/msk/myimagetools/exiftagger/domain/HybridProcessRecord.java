@@ -1,9 +1,13 @@
 package de.msk.myimagetools.exiftagger.domain;
 
+import java.io.Serializable;
+
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoHybridProcess.HybridProcessType;
 
 
-public class HybridProcessRecord {
+public class HybridProcessRecord implements Serializable {
+
+	private static final long serialVersionUID = -7812144865706806884L;
 
 	private HybridProcessType processType; // FilmSelfNegative
 	private String rollId; // 2015-f020

@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class GearInfoLens extends AbstractGearInfo {
 
+	private static final long serialVersionUID = -8486381575461264588L;
+
 	private String lensId;
 	private String lensMake;
 	private String lensModel;

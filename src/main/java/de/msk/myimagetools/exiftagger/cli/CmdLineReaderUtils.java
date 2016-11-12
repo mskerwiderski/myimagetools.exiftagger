@@ -4,12 +4,14 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import de.msk.myimagetools.exiftagger.ExifTaggerException;
 import de.msk.myimagetools.exiftagger.ExifTaggerProps;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoArtist;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoCamera;
+import de.msk.myimagetools.exiftagger.gearinfo.GearInfoExecMode;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfoHybridProcess;
 import de.msk.myimagetools.exiftagger.gearinfo.GearInfos;
 import de.msk.myimagetools.exiftagger.util.ExifSpecUtils;
@@ -19,6 +21,24 @@ public class CmdLineReaderUtils {
 	private CmdLineReaderUtils() {
 	}
 
+	public static boolean getYesNo(CmdLineParams cmdLineParams, String question) 
+		throws ExifTaggerException {
+		String res = CmdLineReader.getStringValue(
+			cmdLineParams,
+			question, null, "<y|n>", 
+			"y|n", true, true);
+		return BooleanUtils.toBoolean(res, "y", "n");
+	}
+	
+	public static GearInfoExecMode getExecMode(CmdLineParams cmdLineParams,
+		GearInfos gearInfos) 
+		throws ExifTaggerException {
+		return CmdLineReader.getRecordOfSelectedItem(
+			cmdLineParams,
+			gearInfos.getExecModes(), 
+			"Exec Mode", "Exec Modes", false);
+	}
+	
 	public static String getRollId(CmdLineParams cmdLineParams,
 		ExifTaggerProps props) 
 		throws ExifTaggerException {
@@ -151,7 +171,7 @@ public class CmdLineReaderUtils {
 			props.getMonthYearExample(), 
 			props.getMonthYearFormat(), 
 			props.getMonthYearRegEx(), 
-			false);
+			false, false);
 	}
 	
 	public static String getInstantFilm(CmdLineParams cmdLineParams, 
@@ -241,6 +261,6 @@ public class CmdLineReaderUtils {
 			cmdLineParams,
 			"Additional Info", 
 			"Developed perfectly.", "<text>", 
-			".+", false);
+			".+", false, false);
 	}
 }

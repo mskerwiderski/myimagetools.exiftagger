@@ -1,5 +1,5 @@
 ExifTagger
-v1.5.1 (c)2015 m.skerwiderski
+v1.6.0 (c)2015 m.skerwiderski
 
 This is a short manual why and how to use ExifTagger.
 

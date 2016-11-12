@@ -21,15 +21,24 @@ public class CmdLineReader {
 		String description, String example, 
 		String format, String expression)
 		throws ExifTaggerException {
-		return getStringValue(cmdLineParams, description, example, format, expression, true);
+		return getStringValue(cmdLineParams, description, example, format, expression, true, false);
 	}
-		
+	
+	public static String getStringValueByQuestion(
+		CmdLineParams cmdLineParams,
+		String description, String example, 
+		String format, String expression)
+		throws ExifTaggerException {
+		return getStringValue(cmdLineParams, description, example, format, expression, true, true);
+	}
+	
 	@SuppressWarnings("resource")
 	public static String getStringValue(
 		CmdLineParams cmdLineParams,
 		String description, String example, 
 		String format, String expression,
-		boolean mustNotBeEmpty) 
+		boolean mustNotBeEmpty,
+		boolean descriptionIsQuestion) 
 		throws ExifTaggerException {
 		String value = ExifSpecUtils.EXIF_NO_VALUE;
 		if (cmdLineParams.hasAutoMap() && cmdLineParams.autoMap.containsKey(description)) {
@@ -37,7 +46,12 @@ public class CmdLineReader {
 		} else {
 			boolean done = false;
 			while (!done) {
-				Utils.logc("Enter " + description + " (e.g. '" + example + "'): ");
+				String label = (descriptionIsQuestion ? "" : "Enter ") + description;
+				if (!StringUtils.isEmpty(example)) {
+					label += " (e.g. '" + example + "')";
+				}
+				label+= (descriptionIsQuestion ? " " : ": ");
+				Utils.logc(label);
 				String in = (new Scanner(System.in)).nextLine();
 				if (!mustNotBeEmpty && StringUtils.isEmpty(in)) {
 					done = true;
@@ -79,7 +93,7 @@ public class CmdLineReader {
 		throws ExifTaggerException {
 		T record = null;
 		if (cmdLineParams.hasAutoMap() && cmdLineParams.autoMap.containsKey(nameSingle)) {
-			int id = Integer.valueOf(cmdLineParams.autoMap.get(nameSingle));
+			int id = Integer.valueOf(StringUtils.trim(cmdLineParams.autoMap.get(nameSingle)));
 			record = gearInfoList.get(id);
 		} else {
 			Utils.logcLn(namePlural + ":");
