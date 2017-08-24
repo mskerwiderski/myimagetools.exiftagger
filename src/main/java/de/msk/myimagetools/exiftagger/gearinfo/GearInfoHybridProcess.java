@@ -7,13 +7,20 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 	private static final long serialVersionUID = 5769135246353065343L;
 
 	public enum HybridProcessType {
-		FilmSelfNegative(true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, false, true, true),
-		FilmSelfSlide(true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true),
-		FilmLabNegative(true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false),
-		FilmLabSlide(true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false),
-		InstantFilm(true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false),
-		InstantFilmBleachedNegative(true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false),
-		DigitalOnly(true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false);
+		FilmSelfNegative(           
+			true, true, true, true, true, true, true, false, true, true, false, true, true, true, true, true, true, true, true, false, true, true),
+		FilmSelfSlide(
+			true, true, true, true, true, true, true, false, true, true, false, true, true, true, true, true, true, true, true, true, true, true),
+		FilmLabNegative(
+			true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, false, false, false, false, false, false, false),
+		FilmLabSlide(
+			true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, false, false, false, false, false, false, false),
+		InstantFilm(
+			true, true, true, false, false, true, false, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false),
+		InstantFilmBleachedNegative(
+			true, true, true, false, false, true, false, true, true, false, false, true, true, true, false, false, false, false, false, false, false, false),
+		DigitalOnly(
+			true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false);
 		
 		private boolean getArtist;
 		private boolean getCamera;
@@ -22,6 +29,7 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 		private boolean getDateOfDevelopment;
 		private boolean getFilmFormat;
 		private boolean getFilmName;
+		private boolean getInstantFilmName;
 		private boolean getFilmExpirationDate;
 		private boolean getDevelopmentPullPushFstops;
 		private boolean getDevelopmentLaboratory;
@@ -40,7 +48,8 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 		private HybridProcessType(boolean getArtist, boolean getCamera,
 			boolean getFilmSpeed, boolean getRoleId,
 			boolean getDateOfDevelopment, boolean getFilmFormat,
-			boolean getFilmName, boolean getFilmExpirationDate,
+			boolean getFilmName, boolean getInstantFilmName, 
+			boolean getFilmExpirationDate,
 			boolean getDevelopmentPullPushFstops,
 			boolean getDevelopmentLaboratory,
 			boolean getDigitizingHardware, boolean getDigitizingSoftware,
@@ -56,6 +65,7 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 			this.getDateOfDevelopment = getDateOfDevelopment;
 			this.getFilmFormat = getFilmFormat;
 			this.getFilmName = getFilmName;
+			this.getInstantFilmName = getInstantFilmName;
 			this.getFilmExpirationDate = getFilmExpirationDate;
 			this.getDevelopmentPullPushFstops = getDevelopmentPullPushFstops;
 			this.getDevelopmentLaboratory = getDevelopmentLaboratory;
@@ -92,6 +102,9 @@ public class GearInfoHybridProcess extends AbstractGearInfo {
 		}
 		public boolean isGetFilmName() {
 			return getFilmName;
+		}
+		public boolean isGetInstantFilmName() {
+			return getInstantFilmName;
 		}
 		public boolean isGetFilmExpirationDate() {
 			return getFilmExpirationDate;

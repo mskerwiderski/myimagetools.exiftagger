@@ -1,3 +1,8 @@
+[v1.6.1]
+* Bugfixes:
+	o Nikon F6 parser: exposure value maybe 'Hi'. It is set then to empty value, until I know what 'Hi' means.
+	o Instant film name is now requested and set correctly.
+	
 [v1.6.0]
 * New features:
 	o exif information can now be saved and reused.

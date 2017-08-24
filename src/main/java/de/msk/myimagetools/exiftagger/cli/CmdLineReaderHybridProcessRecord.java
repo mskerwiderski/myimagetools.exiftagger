@@ -56,6 +56,13 @@ public class CmdLineReaderHybridProcessRecord {
 				hybridProcessRecord.setFilmName(cameraAndFilmDataRecord.getFilmName());
 			}
 		}
+		if (hybridProcessRecord.getProcessType().isGetInstantFilmName()) {
+			if (StringUtils.isEmpty(cameraAndFilmDataRecord.getFilmName())) {
+				hybridProcessRecord.setFilmName(CmdLineReaderUtils.getInstantFilm(cmdLineParams, gearInfos));
+			} else {
+				hybridProcessRecord.setFilmName(cameraAndFilmDataRecord.getFilmName());
+			}
+		}
 		if (hybridProcessRecord.getProcessType().isGetFilmExpirationDate()) {
 			hybridProcessRecord.setFilmExpirationDate(CmdLineReaderUtils.getFilmExpirationDate(cmdLineParams, props));
 		}

@@ -67,7 +67,9 @@ public class DataFileNikonF6Parser extends AbstractDataFileParser {
 		String exifExposureTimeStr = csvRecord.get(1);
 		String exifExposureTimeVal = "";
 		if (!StringUtils.isEmpty(exifExposureTimeStr)) {
-			if (StringUtils.endsWith(exifExposureTimeStr, "\"")) {
+			if (StringUtils.equals(exifExposureTimeStr, "Hi")) {
+				exifExposureTimeVal = "";
+			} else if (StringUtils.endsWith(exifExposureTimeStr, "\"")) {
 				exifExposureTimeStr = StringUtils.remove(exifExposureTimeStr, "\"");
 				exifExposureTimeVal = exifExposureTimeStr;
 			} else {
